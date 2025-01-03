@@ -1,0 +1,56 @@
+{
+  "Template_1735784620967": [
+    {
+      "title": "aaa",
+      "description": "",
+      "type": "string",
+      "example": "aaa"
+    }
+  ],
+  "Template_1735785143349": [
+    {
+      "title": "wwww",
+      "description": "",
+      "type": "string",
+      "example": "wwww"
+    }
+  ],
+  "Template_1735836504847": [
+    {
+      "title": "uuuu",
+      "description": "",
+      "type": "string",
+      "example": "oooo"
+    },
+    {
+      "title": "",
+      "description": "",
+      "type": "string",
+      "example": ""
+    }
+  ],
+  "Template_1735865113392": [
+    {
+      "title": "bbb",
+      "description": "",
+      "type": "string",
+      "example": "bbbb"
+    }
+  ],
+  "Template_1735865737181": [
+    {
+      "title": "mmm",
+      "description": "",
+      "type": "string",
+      "example": "mmm"
+    }
+  ],
+  "ppp": [
+    {
+      "title": "ppp",
+      "description": "",
+      "type": "string",
+      "example": "ppp"
+    }
+  ]
+}

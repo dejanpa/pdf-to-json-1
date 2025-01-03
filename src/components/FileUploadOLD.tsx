@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import DropZone from './Dropzone';
 import clsx from 'clsx';
 import RawJsonDisplay from './RawJsonDisplay';
@@ -15,7 +15,7 @@ import {
   my_custom_template,
 } from '../data/sampleSchemas';
 
-import { AiOutlinePlus, AiOutlineClose } from 'react-icons/ai';
+import { AiOutlinePlus, AiOutlineClose } from 'react-icons/ai'; // Import the necessary icons
 
 import { Schema } from '@Types/schemaTypes';
 import SchemaPropertyInput, {
@@ -27,11 +27,25 @@ import JSONIFYIllustration from '@Assets/jsonify-illustration.png';
 export default function FileUploadForm() {
   const [files, setFiles] = useState<File[]>([]);
   const [isDropActive, setIsDropActive] = useState(false);
+
   const [schemaExampleSelect, setExampleSelect] = useState('custom');
+
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [rawJson, setRawJson] = useState<any[]>([]);
-  const [templateName, setTemplateName] = useState(''); // New state for template name
+
+  const onDragStateChange = useCallback((dragActive: boolean) => {
+    setIsDropActive(dragActive);
+  }, []);
+
+  const onFilesDrop = useCallback((files: File[]) => {
+    if (files && files.length > 0) setFiles(files);
+  }, []);
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) setFiles(Array.from(event.target.files));
+  };
+
   const [schemaProperties, setSchemaProperties] = useState<
     StatefulSchemaPropertyWithTitle[]
   >([
@@ -42,29 +56,6 @@ export default function FileUploadForm() {
       example: '',
     },
   ]);
-  const [availableTemplates, setAvailableTemplates] = useState<
-    Record<string, StatefulSchemaPropertyWithTitle[]>
-  >({
-    myCustomTemplate: my_custom_template,
-    invoiceExample: invoice_schema,
-    menuExample: restaurant_schema_without_menu,
-    menuExampleWithItems: restaurant_schema_with_menu,
-    realEstateExample: real_estate_brochure_schema,
-  });
-
-  useEffect(() => {
-    const fetchTemplates = async () => {
-      try {
-        const response = await fetch('/api/get-templates');
-        const templates = await response.json();
-        setAvailableTemplates(templates);
-      } catch (error) {
-        console.error('Error fetching templates:', error);
-      }
-    };
-
-    fetchTemplates();
-  }, []);
 
   const memoizedSchemaContext = useMemo(
     () => ({
@@ -73,7 +64,7 @@ export default function FileUploadForm() {
         if (parentIndex !== undefined) {
           const parentProperty = schemaProperties[parentIndex];
           const updatedSubProperties = parentProperty.items || [];
-          updatedSubProperties.push({
+          updatedSubProperties?.push({
             title: '',
             description: '',
             type: 'string',
@@ -141,88 +132,45 @@ export default function FileUploadForm() {
     [schemaProperties],
   );
 
-  const handleSchemaExampleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedTemplate = availableTemplates[event.target.value];
+  const handleSchemaExampleChange = (
+    event: React.ChangeEvent<HTMLSelectElement>,
+  ) => {
     setExampleSelect(event.target.value);
 
-    if (selectedTemplate) {
-      setSchemaProperties(selectedTemplate);
-    } else {
-      setSchemaProperties([
-        {
-          title: '',
-          description: '',
-          type: 'string',
-          example: '',
-        },
-      ]);
-    }
-  };
-
-  const handleSaveTemplate = async () => {
-    if (!templateName.trim()) {
-      alert('Please enter a name for the template.');
-      return;
-    }
-
-    try {
-      const response = await fetch('/api/save-template', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: templateName.trim(),
-          schema: schemaProperties,
-        }),
-      });
-
-      if (response.ok) {
-        alert('Template saved successfully!');
-
-        const updatedTemplatesResponse = await fetch('/api/get-templates');
-        const updatedTemplates = await updatedTemplatesResponse.json();
-        setAvailableTemplates(updatedTemplates);
-        setTemplateName(''); // Clear the input field after saving
-      } else {
-        const error = await response.json();
-        alert(`Error saving template: ${error.message}`);
-      }
-    } catch (error) {
-      console.error('Error saving template:', error);
-      alert('Failed to save template. Please try again.');
-    }
-  };
-
-  const handleSaveJson = async () => {
-    try {
-      const response = await fetch('/api/save-json', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ data: rawJson }),
-      });
-
-      if (response.ok) {
-        alert('JSON file saved successfully!');
-      } else {
-        const error = await response.json();
-        alert(`Error saving JSON: ${error.message}`);
-      }
-    } catch (error) {
-      console.error('Error saving JSON:', error);
-      alert('Failed to save JSON. Please try again.');
+    switch (event.target.value) {
+      case 'myCustomTemplate':
+        setSchemaProperties(my_custom_template);
+        break;
+      case 'invoiceExample':
+        setSchemaProperties(invoice_schema);
+        break;
+      case 'menuExample':
+        setSchemaProperties(restaurant_schema_without_menu);
+        break;
+      case 'menuExampleWithItems':
+        setSchemaProperties(restaurant_schema_with_menu);
+        break;
+      case 'realEstateExample':
+        setSchemaProperties(real_estate_brochure_schema);
+        break;
+      default:
+        setSchemaProperties([
+          {
+            title: '',
+            description: '',
+            type: 'string',
+            example: '',
+          },
+        ]);
+        break;
     }
   };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (!files.length) {
-      alert('Please upload at least one PDF file.');
-      return;
-    }
+    if (!files.length) return;
 
+    // Create schema object from schemaProperties array
     const schema: Schema = schemaProperties.reduce((acc, property) => {
       if (property.items !== undefined) {
         return {
@@ -260,10 +208,13 @@ export default function FileUploadForm() {
     setErrorMessage('');
 
     try {
+      // Iterate through each file and send individual requests
       for (const file of files) {
         const formData = new FormData();
         formData.append('pdf', file);
         formData.append('schema', JSON.stringify(schema));
+
+        console.log('schemaProperties::: ', schema);
 
         const response = await fetch('/api/upload-pdf', {
           method: 'POST',
@@ -277,9 +228,15 @@ export default function FileUploadForm() {
 
         const { data } = await response.json();
 
+        // Set the raw JSON data
         if (data) {
-          setRawJson((prevRawJson) => (prevRawJson ? [...prevRawJson, data] : [data]));
+          // Append the data object to the same array in rawJson state
+          setRawJson(prevRawJson => {
+            return prevRawJson ? [...prevRawJson, data] : [data];
+          });
         }
+
+        console.log('AI RESPONSE JSON:', data);
       }
     } catch (error: any) {
       setErrorMessage(`${error.message}`);
@@ -295,20 +252,13 @@ export default function FileUploadForm() {
           <div className="p-6 bg-white rounded-lg shadow-md">
             <h2 className="mb-4 text-lg font-semibold">Define Your Data</h2>
             <div>
-              <label htmlFor="templateName" className={styles.formControlLabel}>
-                Enter a name for your template:
-              </label>
-              <input
-                type="text"
-                id="templateName"
-                value={templateName}
-                onChange={(e) => setTemplateName(e.target.value)}
-                className={clsx(styles.formControl, 'mb-5 !w-1/2')}
-                placeholder="Template name"
-              />
-              <label htmlFor="schemaOptions" className={styles.formControlLabel}>
+              <label
+                htmlFor="schemaOptions"
+                className={styles.formControlLabel}
+              >
                 Select a predefined schema from the dropdown or build your own.
               </label>
+
               <select
                 value={schemaExampleSelect}
                 onChange={handleSchemaExampleChange}
@@ -317,11 +267,13 @@ export default function FileUploadForm() {
                 className={clsx(styles.formControl, 'mb-5 !w-1/2')}
               >
                 <option value="custom">Custom</option>
-                {Object.keys(availableTemplates).map((templateName) => (
-                  <option key={templateName} value={templateName}>
-                    {templateName.replace(/_/g, ' ')}
-                  </option>
-                ))}
+                <option value="invoiceExample">Invoice Example</option>
+                <option value="myCustomTemplate">My Custom Template</option>
+                <option value="menuExample">Menu Example</option>
+                <option value="menuExampleWithItems">
+                  Menu Example &#40;with items&#41;
+                </option>
+                <option value="realEstateExample">Real Estate Example</option>
               </select>
             </div>
             <div className="text-left">
@@ -349,27 +301,22 @@ export default function FileUploadForm() {
                 <button
                   type="button"
                   className="flex items-center px-4 py-2 mt-2 font-bold text-white bg-green-500 rounded hover:bg-green-700 focus:ring-2 focus:ring-green-400"
-                  onClick={() => memoizedSchemaContext.handleAddSchemaProperty()}
+                  onClick={() =>
+                    memoizedSchemaContext.handleAddSchemaProperty()
+                  }
                 >
                   <AiOutlinePlus size={24} className="mx-2" /> Add Field
                 </button>
               )}
             </div>
-            <button
-              type="button"
-              className="w-full px-4 py-2 mt-4 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
-              onClick={handleSaveTemplate}
-            >
-              Save Template
-            </button>
           </div>
         </div>
         <div className="w-full p-1 lg:w-2/5">
           <div className="p-6 mb-4 bg-white rounded-lg shadow-md lg:mb-0">
             <h2 className="mb-4 text-lg font-semibold">Upload Your PDF</h2>
             <DropZone
-              onDragStateChange={setIsDropActive}
-              onFilesDrop={setFiles}
+              onDragStateChange={onDragStateChange}
+              onFilesDrop={onFilesDrop}
               className={clsx(
                 'relative w-full h-32',
                 'border-2 border-dashed rounded-xl',
@@ -382,10 +329,11 @@ export default function FileUploadForm() {
                 type="file"
                 id="fileUpload"
                 className="absolute top-0 left-0 invisible w-full h-full"
-                onChange={(e) => setFiles(Array.from(e.target.files || []))}
+                onChange={handleFileChange}
                 accept="application/pdf"
                 multiple
               />
+
               <label
                 htmlFor="fileUpload"
                 className="flex items-center justify-center w-full h-full p-4 mb-2 font-semibold text-center text-gray-700 cursor-pointer"
@@ -413,28 +361,41 @@ export default function FileUploadForm() {
           </div>
           <div className="p-6 mt-2 bg-white rounded-lg shadow-md">
             <h2 className="mb-4 text-lg font-semibold">Generate Data</h2>
-            <button
-              type="submit"
-              className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
-            >
-              {isLoading ? <Spinner /> : 'Generate Data'}
-            </button>
-            {rawJson.length > 0 && (
-              <>
-                <div className="mt-4">
-                  <RawJsonDisplay data={rawJson} />
-                </div>
-                <button
-                  type="button"
-                  className="w-full px-4 py-2 mt-2 font-bold text-white bg-green-500 rounded hover:bg-green-700 focus:ring-2 focus:ring-green-400"
-                  onClick={handleSaveJson}
-                >
-                  Save JSON
-                </button>
-              </>
-            )}
+            <div className="mt-auto">
+              <button
+                type="submit"
+                className="w-full px-4 py-2 font-bold text-white bg-blue-500 rounded hover:bg-blue-700 focus:ring-2 focus:ring-blue-400"
+              >
+                {isLoading ? <Spinner /> : 'Generate Data'}
+              </button>
+            </div>
             <div className="mt-4 text-red-600">
               {errorMessage && <p>{errorMessage}</p>}
+            </div>
+            <div className="flex flex-col h-full">
+              <div className="mb-4">
+                {rawJson.length ? (
+                  <RawJsonDisplay data={rawJson} />
+                ) : (
+                  <div
+                    className="flex items-center justify-center text-center border border-gray-300 h-96"
+                    style={{ backgroundColor: 'rgb(250, 250, 250)' }}
+                  >
+                    <div>
+                      <Image
+                        width={375}
+                        height={150}
+                        alt="JSONIFY Illustration"
+                        src={JSONIFYIllustration}
+                        className="mx-auto"
+                      />
+                      <p className="text-gray-500">
+                        The extracted data will be displayed here.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

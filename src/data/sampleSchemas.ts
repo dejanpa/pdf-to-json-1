@@ -1,5 +1,107 @@
 import { StatefulSchemaPropertyWithTitle } from '@Components/SchemaPropertyInput';
 
+export const my_custom_template: StatefulSchemaPropertyWithTitle[] = [
+  {
+    title: 'Shipping Notification',
+    description: '',
+    type: 'array',
+    items: [
+      {
+        title: 'Address of carrier :',
+        description: '',
+        type: 'string',
+        example: 'Südost Cargo Sped GmbHSüdost Cargo Sped GmbH Wiener Strasse 201 2514 Traiskirchen Austria',
+      },
+      {
+        title: 'Date :',
+        description: '',
+        type: 'string',
+        example: '16.12.2024',
+      },
+      {
+        title: 'Delivery No.',
+        description: '',
+        type: 'string',
+        example: '8080002357',
+      },
+      {
+        title: 'Consignee :',
+        description: '',
+        type: 'string',
+        example: 'Boehringer Ingelheim HP SO 2320000382, 0101258558 Medika Utinjska 40 10020 Zagreb Croatia',
+      },
+      {
+        title: 'Delivery Clerk :',
+        description: '',
+        type: 'string',
+        example: 'Dario Martin Perez',
+      },
+      {
+        title: 'Email :',
+        description: '',
+        type: 'string',
+        example: 'dario_martin.perez@boehringer-ingelheim.com',
+      },
+      {
+        title: 'Tel :',
+        description: '',
+        type: 'string',
+        example: '01 80105-8693',
+      },
+      {
+        title: 'Shipping Conditions :',
+        description: '',
+        type: 'string',
+        example: 'Truck Tmp controlled',
+      },
+      {
+        title: 'Incoterms',
+        description: '',
+        type: 'string',
+        example: 'CIP Zagreb',
+      },
+      {
+        title: 'Sales value of the order :',
+        description: '',
+        type: 'string',
+        example: '0,00',
+      },
+      {
+        title: 'Currency :',
+        description: '',
+        type: 'string',
+        example: 'EUR Subject to change',
+      },
+      {
+        title: 'Net Weight (KG) of Goods',
+        description: '',
+        type: 'string',
+        example: '605,306',
+      },
+      {
+        title: 'Net volume (cbm) of Goods',
+        description: '',
+        type: 'string',
+        example: '3,910',
+      },
+      {
+        title: 'Shipping Temperature Class',
+        description: '',
+        type: 'string',
+        example: '+15°C TO +25°C MONITORING REQUIRED'
+      },
+      {
+        title: 'Dangerous Goods Information',
+        description: '',
+        type: 'string',
+        example: 'Material 344337: Regulation ADR: UN 1950 5A 2 Regulation IATA_C: UN 1950 2.2 Regulation IMDG: UN 1950 2.2'
+
+      },
+    ]
+  },
+
+];
+
 export const restaurant_schema_with_menu: StatefulSchemaPropertyWithTitle[] = [
   {
     title: 'restaurant_name',

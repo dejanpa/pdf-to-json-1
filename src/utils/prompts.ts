@@ -59,6 +59,7 @@ export const createChatCompletion = async (
 
     console.log('Prompt ID:', promptObject.id, 'completed.');
     console.timeEnd('Execution Time for Prompt ID: ' + promptObject.id);
+    console.log('TOKENS: ', response);
 
     const message = response.data.choices[0]?.message?.content;
 

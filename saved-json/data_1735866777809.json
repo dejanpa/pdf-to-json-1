@@ -1,0 +1,23 @@
+[
+  {
+    "Shipping Notification": [
+      {
+        "Address of carrier :": "Südost Cargo Sped GmbH Wiener Strasse 201 2514 Traiskirchen Austria",
+        "Date :": "16.12.2024",
+        "Delivery No.": "8080002357",
+        "Consignee :": "Boehringer Ingelheim HP SO 2320000382, 0101258558 Medika Utinjska 40 10020 Zagreb Croatia",
+        "Delivery Clerk :": "Dario Martin Perez",
+        "Email :": "dario_martin.perez@boehringer-ingelheim.com",
+        "Tel :": "01 80105-8693",
+        "Shipping Conditions :": "Truck Tmp controlled",
+        "Incoterms": "CIP Zagreb",
+        "Sales value of the order :": "0,00",
+        "Currency :": "EUR Subject to change",
+        "Net Weight (KG) of Goods": "605,306",
+        "Net volume (cbm) of Goods": "3,910",
+        "Shipping Temperature Class": "+15°C TO +25°C MONITORING REQUIRED",
+        "Dangerous Goods Information": "Material 344337: Regulation ADR: UN 1950 5A 2 Regulation IATA_C: UN 1950 2.2 Regulation IMDG: UN 1950 2.2"
+      }
+    ]
+  }
+]
