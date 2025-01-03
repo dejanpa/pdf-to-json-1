@@ -9,7 +9,7 @@ import Image from 'next/image';
  * Internal dependencies
  */
 import FileUploadForm from '@Components/FileUpload';
-import JSONIFYLogoTextOnly from '@Assets/jsonify-logo-text-only.png';
+import JSONIFYLogoTextOnly from '@Assets/darcodev.webp';
 
 const inter = Inter({ subsets: ['latin'] });
 
